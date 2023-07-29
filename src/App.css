@@ -1,7 +1,20 @@
-.App {
-  text-align: center;
+:root {
+  --primary-color: darkslateblue;
 }
 
+body {
+  color: rgb(43, 43, 43);
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  margin: 0 5rem;
+}
+
+.right {
+  margin-top: 1.5rem;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;

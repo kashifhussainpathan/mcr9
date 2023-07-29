@@ -1,0 +1,26 @@
+.sidebar-wrapper {
+  width: 300px;
+  margin-top: 2.5rem;
+}
+
+.sidebarOptions {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  text-decoration: none;
+  color: var(--vacay-black);
+  font-size: 1.4rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  margin: 1rem 0;
+  border: none;
+  outline: none;
+}
+
+.sidebarOptions svg {
+  font-size: 1.6rem;
+}
+
+.sidebarOptions.active {
+  color: var(--primary-color);
+}

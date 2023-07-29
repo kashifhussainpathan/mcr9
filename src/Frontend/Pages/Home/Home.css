@@ -1,0 +1,30 @@
+.categoryContainer {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3rem;
+  padding-left: 0;
+}
+
+.categorySpecial {
+  cursor: pointer;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
+  border-radius: 0.5rem;
+}
+
+.categorySpecial h3 {
+  margin: 0.5rem;
+}
+
+.categorySpecial img {
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.navlink {
+  text-decoration: none;
+  color: var(--secondary-color);
+}
+
+.categorySpecial > img {
+  object-fit: cover;
+}
