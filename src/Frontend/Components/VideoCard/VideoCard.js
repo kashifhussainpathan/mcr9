@@ -17,29 +17,29 @@ export const VideoCard = ({ _id, title, views, thumbnail, creator }) => {
 
   return (
     <div key={_id} className="video-wrapper">
-      <NavLink to={`/watchvideo/${_id}`}>
-        <div className="video-image">
+      <div className="video-image">
+        <NavLink to={`/watchvideo/${_id}`}>
           <img src={thumbnail} alt={title} />
-          <span>
-            {" "}
-            {isWatchLater(_id) ? (
-              <MdWatchLater onClick={() => removeFromWatchLater(_id)} />
-            ) : (
-              <MdOutlineWatchLater onClick={() => addToWatchLater(_id)} />
-            )}
-          </span>
+        </NavLink>
+        <span>
+          {" "}
+          {isWatchLater(_id) ? (
+            <MdWatchLater onClick={() => removeFromWatchLater(_id)} />
+          ) : (
+            <MdOutlineWatchLater onClick={() => addToWatchLater(_id)} />
+          )}
+        </span>
+      </div>
+      <div className="video-details">
+        <div className="dp-and-title">
+          <img src="https://picsum.photos/40/40" alt="dp" />
+          <h4> {title}</h4>
         </div>
-        <div className="video-details">
-          <div className="dp-and-title">
-            <img src="https://picsum.photos/40/40" alt="dp" />
-            <h4> {title}</h4>
-          </div>
 
-          <div className="views-creator">
-            {views} | {creator}
-          </div>
+        <div className="views-creator">
+          {views} | {creator}
         </div>
-      </NavLink>
+      </div>
     </div>
   );
 };

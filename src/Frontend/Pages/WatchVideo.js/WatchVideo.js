@@ -11,6 +11,7 @@ import {
   MdModeEdit,
   MdOutlinePlaylistAddCircle,
 } from "react-icons/md";
+import { PlaylistModal } from "../../Components/PlaylistModal";
 
 export const WatchVideo = () => {
   const { vidId } = useParams();
@@ -28,7 +29,7 @@ export const WatchVideo = () => {
 
   const videoDetails = videos.find((video) => video._id == vidId);
 
-  const { _id, title, views, src, creator } = videoDetails;
+  const { _id, title, src } = videoDetails;
 
   const isWatchLater = (_id) => {
     return watchLater.some((video) => video._id === _id);
@@ -50,7 +51,7 @@ export const WatchVideo = () => {
         <div className="watchVideo-details">
           <div>
             <img src="https://picsum.photos/40/40" alt="dp" />
-            <h2>{title} </h2>
+            <h4>{title} </h4>
           </div>
 
           <div>
@@ -65,14 +66,7 @@ export const WatchVideo = () => {
                 <MdOutlinePlaylistAddCircle onClick={handlePlaylistClick} />
 
                 {showAddToPlaylist && (
-                  <div className="playlist-modal">
-                    <h4> Add To Playlist </h4>
-                    <input
-                      type="text"
-                      placeholder="Enter title of your playlist"
-                    />
-                    <input type="text" placeholder="Write a description" />
-                  </div>
+                  <PlaylistModal videoDetails={videoDetails} />
                 )}
               </div>
             </div>
@@ -110,15 +104,15 @@ export const WatchVideo = () => {
         <div className="notes">
           <h3>Notes</h3>
 
-          {notes.map((note) => (
-            <p>{note} </p>
+          {notes.map((note, index) => (
+            <p key={index}>{note} </p>
           ))}
         </div>
       </div>
 
       <div className="suggestions">
-        {videos.map(({ thumbnail, title }) => (
-          <div className="suggestion-videos">
+        {videos.map(({ _id, thumbnail, title }) => (
+          <div className="suggestion-videos" key={_id}>
             <img src={thumbnail} alt={title} />
             <h5>{title}</h5>
           </div>

@@ -13,6 +13,12 @@ export const videoReducer = (state, action) => {
       return { ...state, noteValue: payload };
     case "NOTE":
       return { ...state, notes: [...state.notes, payload] };
+    case "CREATE-PLAYLIST":
+      return { ...state, playlists: [...state.playlists, payload] };
+    case "DELETE-PLAYLIST":
+      return { ...state, playlists: payload };
+    case "UPDATE-PLAYLIST":
+      return { ...state, playlists: payload };
     default:
       throw new Error(`Unknown action type ${type} `);
   }

@@ -22,7 +22,7 @@ export const Sidebar = () => {
           <span>Explore</span>
         </NavLink>
 
-        <NavLink to="/playlists" className="sidebarOptions">
+        <NavLink to="/playlist" className="sidebarOptions">
           <MdOutlinePlaylistAddCircle />
           <span>Playlists</span>
         </NavLink>

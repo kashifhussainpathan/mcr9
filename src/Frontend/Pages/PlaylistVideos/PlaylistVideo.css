@@ -1,0 +1,20 @@
+.playlist-video-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.playlist-video-heading {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.playlist-video-heading svg {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.playlist-video h2 {
+  text-transform: capitalize;
+}
