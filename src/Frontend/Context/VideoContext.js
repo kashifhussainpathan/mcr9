@@ -1,4 +1,4 @@
-import { createContext, useReducer, useState } from "react";
+import { createContext, useReducer, useState, useEffect } from "react";
 import { videoReducer } from "../Reducer/VideoReducer";
 import { categories } from "../Utils/Categories";
 import { videos } from "../Utils/Videos";
@@ -10,7 +10,6 @@ export const VideoContextProvider = ({ children }) => {
     categories: categories,
     videos: videos,
     watchLater: [],
-    notes: [],
     noteValue: "",
     playlists: [
       {
@@ -31,6 +30,19 @@ export const VideoContextProvider = ({ children }) => {
 
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [state, dispatch] = useReducer(videoReducer, initialState);
+
+  useEffect(() => {
+    const storedState = localStorage.getItem("videoAppState");
+    if (storedState) {
+      dispatch({ type: "LOAD-STATE", payload: JSON.parse(storedState) });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (state !== initialState) {
+      localStorage.setItem("videoAppState", JSON.stringify(state));
+    }
+  }, [state]);
 
   const addToWatchLater = (videoId) => {
     state.videos.map((video) => {
@@ -54,11 +66,40 @@ export const VideoContextProvider = ({ children }) => {
     dispatch({ type: "SEARCH-VIDEO", payload: filteredVideos });
   };
 
-  const handleAddNoteClick = () => {
-    dispatch({ type: "NOTE", payload: state.noteValue });
-    state.noteValue = "";
-  };
+  const handleAddNoteClick = (videoId) => {
+    const videoToUpdate = state?.videos?.find((video) => video._id === videoId);
 
+    if (videoToUpdate) {
+      const newNote = {
+        id: Date.now().toString(),
+        text: state.noteValue,
+      };
+
+      // create notes array in video obj
+      if (!videoToUpdate.hasOwnProperty("notes")) {
+        videoToUpdate.notes = [];
+      }
+
+      // Update the 'notes' array with note
+      const updatedVideo = {
+        ...videoToUpdate,
+        notes: [...videoToUpdate.notes, newNote],
+      };
+
+      // Find the index of the video in the videos array
+      const videoIndex = state.videos.findIndex(
+        (video) => video._id === videoId
+      );
+
+      // Update the videos array with the updated video
+      const updatedVideos = [...state.videos];
+      updatedVideos[videoIndex] = updatedVideo;
+
+      dispatch({ type: "UPDATE_VIDEO_WITH_NOTE", payload: updatedVideos });
+
+      dispatch({ type: "NOTE-VALUE", payload: "" });
+    }
+  };
   const handleCreateNewPlaylist = () => {
     if (playlistInputs.title !== "" || playlistInputs.description !== "") {
       dispatch({ type: "CREATE-PLAYLIST", payload: playlistInputs });
@@ -80,10 +121,10 @@ export const VideoContextProvider = ({ children }) => {
   };
 
   const handleAddToPlaylist = (video, indexToMatch) => {
-    const targetPlaylist = state.playlists[indexToMatch];
+    const targetPlaylist = state?.playlists[indexToMatch];
 
-    const isVideoAlreadyInPlaylist = targetPlaylist.videos.some(
-      (playlistVideo) => playlistVideo._id === video._id
+    const isVideoAlreadyInPlaylist = targetPlaylist?.videos?.some(
+      (playlistVideo) => playlistVideo?._id === video?._id
     );
 
     if (!isVideoAlreadyInPlaylist) {

@@ -4,6 +4,8 @@ import { useContext, useState } from "react";
 import { useParams } from "react-router";
 import ReactPlayer from "react-player";
 import { VideoContext } from "../../Context/VideoContext";
+import { PlaylistModal } from "../../Components/PlaylistModal";
+import { AddNote } from "../../Components/AddNote";
 
 import {
   MdOutlineWatchLater,
@@ -11,7 +13,6 @@ import {
   MdModeEdit,
   MdOutlinePlaylistAddCircle,
 } from "react-icons/md";
-import { PlaylistModal } from "../../Components/PlaylistModal";
 
 export const WatchVideo = () => {
   const { vidId } = useParams();
@@ -20,16 +21,14 @@ export const WatchVideo = () => {
   const [showAddNotes, setShowAddNotes] = useState(false);
 
   const {
-    state: { videos, watchLater, notes, noteValue },
-    dispatch,
+    state: { videos, watchLater },
     addToWatchLater,
     removeFromWatchLater,
-    handleAddNoteClick,
   } = useContext(VideoContext);
 
   const videoDetails = videos.find((video) => video._id == vidId);
 
-  const { _id, title, src } = videoDetails;
+  const { _id, title, src, notes } = videoDetails;
 
   const isWatchLater = (_id) => {
     return watchLater.some((video) => video._id === _id);
@@ -37,10 +36,6 @@ export const WatchVideo = () => {
 
   const handlePlaylistClick = () => {
     setShowAddToPlaylist(!showAddToPlaylist);
-  };
-
-  const handleInputChange = (e) => {
-    dispatch({ type: "NOTE-VALUE", payload: e.target.value });
   };
 
   return (
@@ -74,26 +69,7 @@ export const WatchVideo = () => {
             <div>
               <div className="add-notes">
                 <MdModeEdit onClick={() => setShowAddNotes(!showAddNotes)} />
-                {showAddNotes && (
-                  <div className="add-notes-modal">
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Add note"
-                        value={noteValue}
-                        onChange={handleInputChange}
-                      />{" "}
-                    </div>
-
-                    <div>
-                      {" "}
-                      <button onClick={handleAddNoteClick}>
-                        {" "}
-                        Add Note{" "}
-                      </button>{" "}
-                    </div>
-                  </div>
-                )}
+                {showAddNotes && <AddNote video={videoDetails} />}
               </div>
             </div>
           </div>
@@ -104,8 +80,8 @@ export const WatchVideo = () => {
         <div className="notes">
           <h3>Notes</h3>
 
-          {notes.map((note, index) => (
-            <p key={index}>{note} </p>
+          {notes?.map(({ id, text }) => (
+            <p key={id}>{text} </p>
           ))}
         </div>
       </div>
