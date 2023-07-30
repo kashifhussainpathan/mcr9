@@ -2,6 +2,7 @@ import { createContext, useReducer, useState, useEffect } from "react";
 import { videoReducer } from "../Reducer/VideoReducer";
 import { categories } from "../Utils/Categories";
 import { videos } from "../Utils/Videos";
+import toast from "react-hot-toast";
 
 export const VideoContext = createContext();
 
@@ -29,6 +30,7 @@ export const VideoContextProvider = ({ children }) => {
   });
 
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [showEditNoteModal, setShowEditNoteModal] = useState(false);
   const [state, dispatch] = useReducer(videoReducer, initialState);
 
   useEffect(() => {
@@ -48,6 +50,7 @@ export const VideoContextProvider = ({ children }) => {
     state.videos.map((video) => {
       if (video._id === videoId) {
         dispatch({ type: "ADD-TO-WATCHLATER", payload: video });
+        toast.success("Added to watch later");
       }
     });
   };
@@ -57,6 +60,7 @@ export const VideoContextProvider = ({ children }) => {
       (video) => video._id !== videoId
     );
     dispatch({ type: "REMOVE-FROM-WATCHLATER", payload: updateWatchLater });
+    toast.error("Removed from watch later");
   };
 
   const searchVideo = (searchTerm) => {
@@ -69,13 +73,19 @@ export const VideoContextProvider = ({ children }) => {
   const handleAddNoteClick = (videoId) => {
     const videoToUpdate = state?.videos?.find((video) => video._id === videoId);
 
+    if (state.noteValue === "") {
+      state.noteValue.trim("");
+      toast.error("Please write a note");
+      return;
+    }
+
     if (videoToUpdate) {
       const newNote = {
         id: Date.now().toString(),
         text: state.noteValue,
       };
 
-      // create notes array in video obj
+      // create notes array in videoToUpdate
       if (!videoToUpdate.hasOwnProperty("notes")) {
         videoToUpdate.notes = [];
       }
@@ -86,7 +96,7 @@ export const VideoContextProvider = ({ children }) => {
         notes: [...videoToUpdate.notes, newNote],
       };
 
-      // Find the index of the video in the videos array
+      // Find the index of the videoToUpdate in the videos array
       const videoIndex = state.videos.findIndex(
         (video) => video._id === videoId
       );
@@ -109,6 +119,8 @@ export const VideoContextProvider = ({ children }) => {
         description: "",
         img: "https://picsum.photos/300/174",
       });
+    } else {
+      toast.error("Please write title & description");
     }
   };
 
@@ -135,9 +147,53 @@ export const VideoContextProvider = ({ children }) => {
       );
 
       dispatch({ type: "UPDATE-PLAYLIST", payload: updatedPlaylist });
+      toast.success("Video added to playlist");
     } else {
-      alert("Video already exists in the playlist.");
+      toast.error("Video already exists in the playlist.");
     }
+  };
+
+  const handleDeleteNoteFromVideo = (noteId, videoId) => {
+    const targetVideo = state?.videos?.find((video) => video._id === videoId);
+
+    if (targetVideo) {
+      const updatedNotes = targetVideo.notes.filter(
+        (note) => note.id !== noteId
+      );
+
+      const updatedVideo = {
+        ...targetVideo,
+        notes: updatedNotes,
+      };
+
+      const updatedVideos = state.videos.map((video) =>
+        video._id === videoId ? updatedVideo : video
+      );
+
+      dispatch({ type: "UPDATE_VIDEO_WITH_NOTE", payload: updatedVideos });
+    }
+  };
+
+  const handleUpdateNoteClick = (noteToEdit, videoId) => {
+    const targetVideo = state?.videos?.find((video) => video._id === +videoId);
+
+    if (targetVideo && noteToEdit.text !== "") {
+      const updatedNotes = targetVideo?.notes?.map((note) =>
+        note.id === noteToEdit.id ? { ...noteToEdit } : note
+      );
+
+      const updatedVideo = {
+        ...targetVideo,
+        notes: updatedNotes,
+      };
+
+      const updatedVideos = state?.videos?.map((video) =>
+        video._id === +videoId ? { ...updatedVideo } : video
+      );
+
+      dispatch({ type: "UPDATE_VIDEO_WITH_NOTE", payload: updatedVideos });
+    }
+    setShowEditNoteModal(false);
   };
 
   const value = {
@@ -145,6 +201,8 @@ export const VideoContextProvider = ({ children }) => {
     dispatch,
     addToWatchLater,
     removeFromWatchLater,
+    showEditNoteModal,
+    setShowEditNoteModal,
     searchVideo,
     handleAddNoteClick,
     playlistInputs,
@@ -154,6 +212,8 @@ export const VideoContextProvider = ({ children }) => {
     handleDeletePlaylist,
     showPlaylistModal,
     setShowPlaylistModal,
+    handleDeleteNoteFromVideo,
+    handleUpdateNoteClick,
   };
 
   return (
