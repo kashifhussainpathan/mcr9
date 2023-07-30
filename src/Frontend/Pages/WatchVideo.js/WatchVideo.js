@@ -13,17 +13,24 @@ import {
   MdModeEdit,
   MdOutlinePlaylistAddCircle,
 } from "react-icons/md";
+import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { RxCross2 } from "react-icons/rx";
 
 export const WatchVideo = () => {
   const { vidId } = useParams();
 
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
   const [showAddNotes, setShowAddNotes] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null);
 
   const {
     state: { videos, watchLater },
     addToWatchLater,
     removeFromWatchLater,
+    handleDeleteNoteFromVideo,
+    handleUpdateNoteClick,
+    showEditNoteModal,
+    setShowEditNoteModal,
   } = useContext(VideoContext);
 
   const videoDetails = videos.find((video) => video._id == vidId);
@@ -36,6 +43,14 @@ export const WatchVideo = () => {
 
   const handlePlaylistClick = () => {
     setShowAddToPlaylist(!showAddToPlaylist);
+  };
+
+  const handleEditNoteButton = (noteId, text) => {
+    setShowEditNoteModal(true);
+    setSelectedNote({
+      id: noteId,
+      text: text,
+    });
   };
 
   return (
@@ -81,7 +96,47 @@ export const WatchVideo = () => {
           <h3>Notes</h3>
 
           {notes?.map(({ id, text }) => (
-            <p key={id}>{text} </p>
+            <div key={id} className="notes-card">
+              <p>{text} </p>
+              <div>
+                <AiOutlineEdit onClick={() => handleEditNoteButton(id, text)} />
+                <AiOutlineDelete
+                  onClick={() =>
+                    handleDeleteNoteFromVideo(id, videoDetails._id)
+                  }
+                />
+              </div>
+
+              {showEditNoteModal && (
+                <div className="edit-note-modal-wrapper">
+                  <div className="edit-note-modal">
+                    <div></div>
+
+                    <input
+                      type="text"
+                      value={selectedNote?.text}
+                      onChange={(e) =>
+                        setSelectedNote({
+                          ...selectedNote,
+                          text: e.target.value,
+                        })
+                      }
+                    />
+
+                    <button
+                      onClick={() => handleUpdateNoteClick(selectedNote, vidId)}
+                    >
+                      {" "}
+                      Update Note{" "}
+                    </button>
+                    <button onClick={() => setShowEditNoteModal(false)}>
+                      {" "}
+                      Cancel Edit{" "}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
