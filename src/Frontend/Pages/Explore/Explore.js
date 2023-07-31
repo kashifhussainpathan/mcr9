@@ -8,14 +8,14 @@ export const Explore = () => {
   const {
     state: { videos },
     searchVideo,
+    searchTerm,
+    setSearchTerm,
   } = useContext(VideoContext);
-
-  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchInputChange = (e) => {
     const { value } = e.target;
     setSearchTerm(value);
-    searchVideo(value);
+    searchVideo();
   };
 
   return (

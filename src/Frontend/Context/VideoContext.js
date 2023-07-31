@@ -1,12 +1,17 @@
 import { createContext, useReducer, useState, useEffect } from "react";
+import { useLocation } from "react-router";
+
 import { videoReducer } from "../Reducer/VideoReducer";
 import { categories } from "../Utils/Categories";
 import { videos } from "../Utils/Videos";
+
 import toast from "react-hot-toast";
 
 export const VideoContext = createContext();
 
 export const VideoContextProvider = ({ children }) => {
+  const location = useLocation();
+
   const initialState = {
     categories: categories,
     videos: videos,
@@ -29,22 +34,10 @@ export const VideoContextProvider = ({ children }) => {
     videos: [],
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [showEditNoteModal, setShowEditNoteModal] = useState(false);
   const [state, dispatch] = useReducer(videoReducer, initialState);
-
-  useEffect(() => {
-    const storedState = localStorage.getItem("videoAppState");
-    if (storedState) {
-      dispatch({ type: "LOAD-STATE", payload: JSON.parse(storedState) });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (state !== initialState) {
-      localStorage.setItem("videoAppState", JSON.stringify(state));
-    }
-  }, [state]);
 
   const addToWatchLater = (videoId) => {
     state.videos.map((video) => {
@@ -63,11 +56,15 @@ export const VideoContextProvider = ({ children }) => {
     toast.error("Removed from watch later");
   };
 
-  const searchVideo = (searchTerm) => {
-    const filteredVideos = videos.filter((video) =>
-      video.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    dispatch({ type: "SEARCH-VIDEO", payload: filteredVideos });
+  const searchVideo = () => {
+    if (searchTerm === "") {
+      dispatch({ type: "SEARCH-VIDEO", payload: videos });
+    } else {
+      const filteredVideos = videos.filter((video) =>
+        video?.title?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+      );
+      dispatch({ type: "SEARCH-VIDEO", payload: filteredVideos });
+    }
   };
 
   const handleAddNoteClick = (videoId) => {
@@ -196,6 +193,26 @@ export const VideoContextProvider = ({ children }) => {
     setShowEditNoteModal(false);
   };
 
+  useEffect(() => {
+    if (location.pathname !== "/explore") {
+      setSearchTerm("");
+      searchVideo();
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const storedState = localStorage.getItem("videoAppState");
+    if (storedState) {
+      dispatch({ type: "LOAD-STATE", payload: JSON.parse(storedState) });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (state !== initialState) {
+      localStorage.setItem("videoAppState", JSON.stringify(state));
+    }
+  }, [state]);
+
   const value = {
     state,
     dispatch,
@@ -204,6 +221,8 @@ export const VideoContextProvider = ({ children }) => {
     showEditNoteModal,
     setShowEditNoteModal,
     searchVideo,
+    searchTerm,
+    setSearchTerm,
     handleAddNoteClick,
     playlistInputs,
     setplaylistInputs,
