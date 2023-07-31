@@ -4,6 +4,8 @@ import { useContext, useState } from "react";
 import { useParams } from "react-router";
 import ReactPlayer from "react-player";
 import { VideoContext } from "../../Context/VideoContext";
+import { PlaylistModal } from "../../Components/PlaylistModal";
+import { AddNote } from "../../Components/AddNote";
 
 import {
   MdOutlineWatchLater,
@@ -11,24 +13,29 @@ import {
   MdModeEdit,
   MdOutlinePlaylistAddCircle,
 } from "react-icons/md";
+import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { RxCross2 } from "react-icons/rx";
 
 export const WatchVideo = () => {
   const { vidId } = useParams();
 
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
   const [showAddNotes, setShowAddNotes] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null);
 
   const {
-    state: { videos, watchLater, notes, noteValue },
-    dispatch,
+    state: { videos, watchLater },
     addToWatchLater,
     removeFromWatchLater,
-    handleAddNoteClick,
+    handleDeleteNoteFromVideo,
+    handleUpdateNoteClick,
+    showEditNoteModal,
+    setShowEditNoteModal,
   } = useContext(VideoContext);
 
   const videoDetails = videos.find((video) => video._id == vidId);
 
-  const { _id, title, views, src, creator } = videoDetails;
+  const { _id, title, src, notes } = videoDetails;
 
   const isWatchLater = (_id) => {
     return watchLater.some((video) => video._id === _id);
@@ -38,8 +45,12 @@ export const WatchVideo = () => {
     setShowAddToPlaylist(!showAddToPlaylist);
   };
 
-  const handleInputChange = (e) => {
-    dispatch({ type: "NOTE-VALUE", payload: e.target.value });
+  const handleEditNoteButton = (noteId, text) => {
+    setShowEditNoteModal(true);
+    setSelectedNote({
+      id: noteId,
+      text: text,
+    });
   };
 
   return (
@@ -50,7 +61,7 @@ export const WatchVideo = () => {
         <div className="watchVideo-details">
           <div>
             <img src="https://picsum.photos/40/40" alt="dp" />
-            <h2>{title} </h2>
+            <h4>{title} </h4>
           </div>
 
           <div>
@@ -65,14 +76,7 @@ export const WatchVideo = () => {
                 <MdOutlinePlaylistAddCircle onClick={handlePlaylistClick} />
 
                 {showAddToPlaylist && (
-                  <div className="playlist-modal">
-                    <h4> Add To Playlist </h4>
-                    <input
-                      type="text"
-                      placeholder="Enter title of your playlist"
-                    />
-                    <input type="text" placeholder="Write a description" />
-                  </div>
+                  <PlaylistModal videoDetails={videoDetails} />
                 )}
               </div>
             </div>
@@ -80,26 +84,7 @@ export const WatchVideo = () => {
             <div>
               <div className="add-notes">
                 <MdModeEdit onClick={() => setShowAddNotes(!showAddNotes)} />
-                {showAddNotes && (
-                  <div className="add-notes-modal">
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Add note"
-                        value={noteValue}
-                        onChange={handleInputChange}
-                      />{" "}
-                    </div>
-
-                    <div>
-                      {" "}
-                      <button onClick={handleAddNoteClick}>
-                        {" "}
-                        Add Note{" "}
-                      </button>{" "}
-                    </div>
-                  </div>
-                )}
+                {showAddNotes && <AddNote video={videoDetails} />}
               </div>
             </div>
           </div>
@@ -110,15 +95,55 @@ export const WatchVideo = () => {
         <div className="notes">
           <h3>Notes</h3>
 
-          {notes.map((note) => (
-            <p>{note} </p>
+          {notes?.map(({ id, text }) => (
+            <div key={id} className="notes-card">
+              <p>{text} </p>
+              <div>
+                <AiOutlineEdit onClick={() => handleEditNoteButton(id, text)} />
+                <AiOutlineDelete
+                  onClick={() =>
+                    handleDeleteNoteFromVideo(id, videoDetails._id)
+                  }
+                />
+              </div>
+
+              {showEditNoteModal && (
+                <div className="edit-note-modal-wrapper">
+                  <div className="edit-note-modal">
+                    <div></div>
+
+                    <input
+                      type="text"
+                      value={selectedNote?.text}
+                      onChange={(e) =>
+                        setSelectedNote({
+                          ...selectedNote,
+                          text: e.target.value,
+                        })
+                      }
+                    />
+
+                    <button
+                      onClick={() => handleUpdateNoteClick(selectedNote, vidId)}
+                    >
+                      {" "}
+                      Update Note{" "}
+                    </button>
+                    <button onClick={() => setShowEditNoteModal(false)}>
+                      {" "}
+                      Cancel Edit{" "}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
 
       <div className="suggestions">
-        {videos.map(({ thumbnail, title }) => (
-          <div className="suggestion-videos">
+        {videos.map(({ _id, thumbnail, title }) => (
+          <div className="suggestion-videos" key={_id}>
             <img src={thumbnail} alt={title} />
             <h5>{title}</h5>
           </div>
