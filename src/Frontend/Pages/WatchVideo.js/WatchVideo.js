@@ -33,7 +33,7 @@ export const WatchVideo = () => {
     setShowEditNoteModal,
   } = useContext(VideoContext);
 
-  const videoDetails = videos.find((video) => video._id == vidId);
+  const videoDetails = videos?.find((video) => video?._id == vidId);
 
   const { _id, title, src, notes } = videoDetails;
 
